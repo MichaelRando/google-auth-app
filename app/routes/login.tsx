@@ -3,32 +3,36 @@ import {useGoogleLogin} from '@react-oauth/google';
 import {useFetcher, useNavigate} from "react-router";
 import {OAuth2Client} from "google-auth-library";
 
-export async function action(actionArgs: Route.ActionArgs) {
-  const request = actionArgs.request;
-  const data = await request.json();
-  const oAuth2Client = new OAuth2Client(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    'postmessage',
-  );
-  const code = data.code;
-  const {tokens} = await oAuth2Client.getToken(data.code); // exchange code for tokens
-  if (tokens?.id_token) {
-    const ticket = await oAuth2Client.verifyIdToken({
-      idToken: tokens.id_token,
-    });
-    if (ticket) {
-      const payload = ticket.getPayload();
-      if (payload?.email_verified) {
-        return {route: "/home"};
-      }
-    }
-  }
-  return {};
+export function action(actionArgs: Route.ActionArgs) {
+  // const request = actionArgs.request;
+  // const data = await request.json();
+  // const oAuth2Client = new OAuth2Client(
+  //   process.env.CLIENT_ID,
+  //   process.env.CLIENT_SECRET,
+  //   'postmessage',
+  // );
+  // const code = data.code;
+  // const {tokens} = await oAuth2Client.getToken(data.code); // exchange code for tokens
+  // if (tokens?.id_token) {
+  //   const ticket = await oAuth2Client.verifyIdToken({
+  //     idToken: tokens.id_token,
+  //   });
+  //   if (ticket) {
+  //     const payload = ticket.getPayload();
+  //     if (payload?.email_verified) {
+  //       return {route: "/home"};
+  //     }
+  //   }
+  // }
+  return {route:"/home"};
 }
 
 export default function Login({loaderData, actionData}: Route.ComponentProps) {
   const navigate = useNavigate();
+  console.log(`Login: loaderData ${loaderData}, actionData ${actionData}`)
+  if (actionData && actionData.route) {
+    navigate(actionData.route);
+  }
   const fetcher = useFetcher();
   const googleLogin = useGoogleLogin({
     onSuccess: async ({code}) => {
@@ -36,11 +40,6 @@ export default function Login({loaderData, actionData}: Route.ComponentProps) {
         method: "post",
         encType: "application/json"
       });
-      console.log(response);
-      const nav = {}
-      if ("route" in nav) {
-        navigate(nav?.route ?? "");
-      }
     },
     flow: 'auth-code',
   });
