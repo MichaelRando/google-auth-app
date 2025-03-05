@@ -6,7 +6,6 @@ import {AppLoadContext} from "react-router";
 declare module "react-router" {
   interface AppLoadContext {
     CLIENT_ID: string;
-    HELLO: string;
   }
 }
 
@@ -19,7 +18,6 @@ app.use(
     getLoadContext(): AppLoadContext {
       return {
         CLIENT_ID: process.env.CLIENT_ID ?? "",
-        HELLO: "hello from express",
       };
     },
   })
